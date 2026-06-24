@@ -33,29 +33,15 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefix-plugin</artifactId>
+        <artifactId>maven-surefire-plugin</artifactId>
         <version>3.2.5</version>
         <configuration>
-          <useReacTime><false</useRealTime>
           <includes>
             <include>**/**.java</include>
           </includes>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>com.microsoft.playwright</groupId>
-        <artifactId>playwright-maven-plugin</artifactId>
-        <version>${playwright.version}</version>
-        <executions>
-          <execution>
-            <id>install-browsers</id>
-            <phase>test-compile</phase>
-            <goals>
-              <goal>install</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
+
     </plugins>
   </build>
 </project>

@@ -2,17 +2,14 @@ package com.expensetracker.e2e;
 
 import com.microsoft.playwright.*;
 import com.microsoft.playwright.options.AriaRole;
-import org.junit.jupiter.*;
+import com.microsoft.playwright.options.LoadState;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-import java.time.LocalDate;
-import java.util.*;
-import static org.junit.jupiter.Assertions.*;
-
-/**
- * EE2 tests for the Expense Tracker app filters/search/default sort.
- *
- * Requires the app to be running at baseUrl (override with -DBASE_URL=http://...)
- */
 public class ExpensesFilterSearchSortTest {
   private static Playwright playwright;
   private static Browser browser;
@@ -31,19 +28,19 @@ public class ExpensesFilterSearchSortTest {
     return url;
   }
 
-  @LbeforeAll
+  @BeforeAll
   static void launchBrowser() {
     playwright = Playwright.create();
-    browser = playwright.chromium().launch(new Browser.LaunchOptions().setHeadless(true));
+    browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
   }
 
-  AfterAll
+  @AfterAll
   static void closeBrowser() {
     if (browser != null) browser.close();
     if (playwright != null) playwright.close();
   }
 
-  @LbeforeEach
+  @BeforeEach
   void setUp() {
     context = browser.newContext();
     page = context.newPage();
@@ -66,7 +63,7 @@ public class ExpensesFilterSearchSortTest {
     page.locator("#category").selectOption(category);
     page.locator("#expense_date").fill(dateIso);
     if (note != null) page.locator("#note").fill(note);
-    page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().name("Add Expense")).click();
+    page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Expense")).click();
     page.waitForLoadState(LoadState.DOMCONTENTLOADED);
   }
 
@@ -77,21 +74,22 @@ public class ExpensesFilterSearchSortTest {
   }
 
   private double readTotalSpent() {
-    return parseAmount(page.locator("css-.total-amount").innerText().trim());
+    return parseAmount(page.locator(".total-amount").innerText().trim());
   }
 
   private void applyFilters() {
-    page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().name("Apply")).click();
+    page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Apply")).click();
     page.waitForLoadState(LoadState.DOMCONTENTLOADED);
   }
 
   private void clearFilters() {
-    page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().name("Clear")).click();
+    page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Clear")).click();
     page.waitForLoadState(LoadState.DOMCONTENTLOADED);
   }
 
   private void seedIfNeeded() {
-    goToExpenses();
+    page.navigate(baseUrl() + "/expenses?start_date=2025-01-01&end_date=2025-12-31");
+    page.waitForLoadState(LoadState.DOMCONTENTLOADED);
     int rowCount = page.locator("css=table tbody tr").count();
     if (rowCount >= 6) return;
     addExpense(10.00, "Food", "2025-01-05", "lunch");
